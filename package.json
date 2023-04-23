@@ -1,5 +1,5 @@
 {
-  "name": "check",
+  "name": "toggle-markdown-checkbox",
   "version": "1.0.0",
   "description": "Commands that allow markdown checkboxes to be manipulated from the command line",
   "main": "index.js",
