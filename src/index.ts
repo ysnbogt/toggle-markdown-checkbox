@@ -8,7 +8,7 @@ type CheckBox = {
   label: string;
 };
 
-interface PromptOptions {
+type PromptOptions = {
   type: string;
   name: string;
   message: string;
@@ -19,7 +19,7 @@ interface PromptOptions {
   }[];
 }
 
-interface PromptResponse {
+type PromptResponse = {
   checkboxes: string[];
 }
 
