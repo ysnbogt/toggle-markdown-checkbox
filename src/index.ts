@@ -2,12 +2,64 @@ import { prompt } from 'enquirer';
 import { resolve } from 'path';
 import { readFileSync, writeFileSync } from 'fs';
 
+type CheckBox = {
+  index: number;
+  checked: boolean;
+  label: string;
+};
+
+interface PromptOptions {
+  type: string;
+  name: string;
+  message: string;
+  initial: number[];
+  choices: {
+    name: string;
+    message: string;
+  }[];
+}
+
+interface PromptResponse {
+  checkboxes: string[];
+}
+
+function updateCheckboxesState(
+  checkboxes: CheckBox[],
+  selectedIndices: number[]
+): void {
+  checkboxes.forEach((_, index) => {
+    if (selectedIndices.includes(index)) {
+      checkboxes[index].checked = true;
+      return;
+    }
+    checkboxes[index].checked = false;
+  });
+}
+
+function updateFileContent(
+  fileName: string,
+  fileContent: string,
+  checkboxes: CheckBox[]
+): void {
+  let updatedContent = fileContent;
+  checkboxes.forEach(({ checked, label, index }) => {
+    const newCheckbox = `- [${checked ? 'x' : ' '}]${label}`;
+    updatedContent =
+      updatedContent.substring(0, index) +
+      newCheckbox +
+      updatedContent.substring(index + newCheckbox.length);
+  });
+
+  writeFileSync(fileName, updatedContent, 'utf-8');
+  console.log('File updated successfully.');
+}
+
 async function main() {
   const fileName = resolve(process.argv[2]);
   const fileContent = readFileSync(fileName, 'utf-8');
   const regex = /^- \[(x| )\](.*)$/gm;
   let match;
-  const checkboxes: { index: number; checked: boolean; label: string }[] = [];
+  const checkboxes: CheckBox[] = [];
 
   while ((match = regex.exec(fileContent)) !== null) {
     checkboxes.push({
@@ -30,33 +82,16 @@ async function main() {
       name: index.toString(),
       message: checkbox.label,
     })),
-  } as any)
-    .then((response: any) => {
-      const selectedIndices: number[] = response.checkboxes.map(
-        (selected: string) => Number(selected)
-      );
+  } as PromptOptions)
+    .then((response: unknown) => {
+      const selectedIndices: number[] = (
+        response as PromptResponse
+      ).checkboxes.map((selected: string) => Number(selected));
 
-      checkboxes.forEach((_, index) => {
-        if (selectedIndices.includes(index)) {
-          checkboxes[index].checked = true;
-          return;
-        }
-        checkboxes[index].checked = false;
-      });
-
-      let updatedContent = fileContent;
-      checkboxes.forEach(({ checked, label, index }) => {
-        const newCheckbox = `- [${checked ? 'x' : ' '}]${label}`;
-        updatedContent =
-          updatedContent.substring(0, index) +
-          newCheckbox +
-          updatedContent.substring(index + newCheckbox.length);
-      });
-
-      writeFileSync(fileName, updatedContent, 'utf-8');
-      console.log('File updated successfully.');
+      updateCheckboxesState(checkboxes, selectedIndices);
+      updateFileContent(fileName, fileContent, checkboxes);
     })
-    .catch((error: any) => {
+    .catch((error: Error) => {
       console.error('Error:', error);
     });
 }

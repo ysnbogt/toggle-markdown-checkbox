@@ -1,6 +1,6 @@
 {
   "name": "toggle-markdown-checkbox",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Commands that allow markdown checkboxes to be manipulated from the command line",
   "main": "index.js",
   "bin": {
