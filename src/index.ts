@@ -1,6 +1,6 @@
 import { prompt } from 'enquirer';
 import { resolve } from 'path';
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
 
 type CheckBox = {
   index: number;
@@ -17,11 +17,11 @@ type PromptOptions = {
     name: string;
     message: string;
   }[];
-}
+};
 
 type PromptResponse = {
   checkboxes: string[];
-}
+};
 
 function updateCheckboxesState(
   checkboxes: CheckBox[],
@@ -56,6 +56,12 @@ function updateFileContent(
 
 async function main() {
   const fileName = resolve(process.argv[2]);
+
+  if (!existsSync(fileName)) {
+    console.error(`\x1b[31mError:\x1b[0m File '${fileName}' does not exist.`);
+    process.exit(1);
+  }
+
   const fileContent = readFileSync(fileName, 'utf-8');
   const regex = /^- \[(x| )\](.*)$/gm;
   let match;
@@ -67,6 +73,13 @@ async function main() {
       checked: match[1] === 'x',
       label: match[2],
     });
+  }
+
+  if (checkboxes.length === 0) {
+    console.error(
+      `\x1b[31mError:\x1b[0m No matching content found in '${fileName}'.`
+    );
+    process.exit(1);
   }
 
   const initial = checkboxes
