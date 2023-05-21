@@ -1,6 +1,6 @@
 {
   "name": "toggle-markdown-checkbox",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Commands that allow markdown checkboxes to be manipulated from the command line",
   "main": "index.js",
   "bin": {
@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "webpack",
-    "start": "ts-node --files -r tsconfig-paths/register src/index.ts",
+    "start": "ts-node --files -r tsconfig-paths/register src/index.ts task.md",
     "prepare": "webpack --config webpack.config.js",
     "watch": "webpack --config webpack.dev.js --watch",
     "lint": "eslint --ignore-path .eslintignore --ext .js,.ts .",
@@ -32,7 +32,10 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
+    "chalk": "^5.2.0",
+    "date-fns": "^2.30.0",
     "enquirer": "^2.3.6",
+    "front-matter": "^4.0.2",
     "tsconfig-paths": "^4.1.2"
   }
 }
